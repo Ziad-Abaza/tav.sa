@@ -1,0 +1,19 @@
+{
+    "name": "TapGateway",
+    "alias": "tap-gateway",
+    "namespace": "Modules\\TapGateway\\",
+    "provider": "Modules\\TapGateway\\Providers\\TapGatewayServiceProvider",
+    "author": "Corbital Technologies",
+    "url": "https://codecanyon.net/user/corbitaltech",
+    "version": "1.0.0",
+    "description": "The TapGateway Module",
+    "keywords": [],
+    "order": 0,
+    "providers": [
+        "Modules\\TapGateway\\Providers\\TapGatewayServiceProvider"
+    ],
+    "aliases": [],
+    "require": [],
+    "conflicts": [],
+    "type": "custom"
+}

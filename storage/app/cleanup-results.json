@@ -1,0 +1,221 @@
+{
+    "deleted": [
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/CouponFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/CreditFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/CurrencyFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/DepartmentFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/InvoicesFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/LanguageFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/LanguageLineFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/PageFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/RoleAssigneeFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/RoleFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/SubscriptionFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/TaxFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/TenantFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/TenantLanguageFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/TransactionFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/Filament\/UserFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Admin\/Tables\/LanguageLineTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/CampaignDetailTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/CampaignExecutedTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/AiPromptFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/CampaignFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/CannedReplyFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/ContactFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/CustomFieldFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/FlowBotFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/GroupFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/ImportContactsLogsFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/InvoiceFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/MessageBotFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/RoleFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/SourceFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/StaffFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/StatusFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/TemplateBotFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/TenantLanguageFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/TenantRoleAssigneeFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/WhatsppTemplateFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/Filament\/WmActivityFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/TenantLanguageLineTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "app\/Livewire\/Tenant\/Tables\/WhatsppTemplateTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "Modules\/Tickets\/Livewire\/Admin\/Filament\/TicketsFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "Modules\/Tickets\/Livewire\/Client\/Filament\/TicketsFilamentTable.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        },
+        {
+            "path": "resources\/views\/livewire\/admin\/tables\/filament\/language-line-filament-table.blade.php",
+            "status": "Deleted",
+            "timestamp": "2026-03-20 05:28:36"
+        }
+    ],
+    "not_found": [],
+    "error": []
+}

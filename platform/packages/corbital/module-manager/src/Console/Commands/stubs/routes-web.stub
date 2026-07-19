@@ -1,0 +1,25 @@
+<?php
+
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\SanitizeInputs;
+use Illuminate\Support\Facades\Route;
+use Modules\{{ name }}\Http\Controllers\{{ name }}Controller;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your module. These
+| routes are loaded by the ServiceProvider.
+|
+*/
+
+Route::middleware(['web', 'auth', AdminMiddleware::class, SanitizeInputs::class])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::prefix('{{ kebabName }}')->name('{{ kebabName }}.')->group(function () {
+            Route::get('/', [{{ name }}Controller::class, 'index'])->name('index');
+        });
+    });

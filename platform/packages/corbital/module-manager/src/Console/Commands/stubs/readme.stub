@@ -1,0 +1,19 @@
+# {{ name }} Module
+
+This is the {{ name }} module for the application.
+
+## Type
+{{ type }} ({{ typeDescription }})
+
+## Installation
+
+1. Copy this folder to `Modules/{{ name }}`
+2. Activate the module using `php artisan module:activate {{ name }}`
+
+## Features
+
+- List features here
+
+## Configuration
+
+- Document module configuration options here
