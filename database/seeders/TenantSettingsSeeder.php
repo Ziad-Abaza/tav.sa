@@ -320,19 +320,19 @@ class TenantSettingsSeeder extends Seeder
             });
         }
 
-        if (! $constraintExists('coupon_usages', 'coupon_usages_invoice_id_foreign')) {
+        if (! $constraintExists('coupon_usages', 'coupon_usages_invoice_id_foreign') && Schema::hasTable('invoices')) {
             Schema::table('coupon_usages', function (Blueprint $table) {
                 $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('set null');
             });
         }
 
-        if (! $constraintExists('coupon_usages', 'coupon_usages_subscription_id_foreign')) {
+        if (! $constraintExists('coupon_usages', 'coupon_usages_subscription_id_foreign') && Schema::hasTable('subscriptions')) {
             Schema::table('coupon_usages', function (Blueprint $table) {
                 $table->foreign('subscription_id')->references('id')->on('subscriptions')->onDelete('set null');
             });
         }
 
-        if (! $constraintExists('invoices', 'invoices_coupon_id_foreign')) {
+        if (! $constraintExists('invoices', 'invoices_coupon_id_foreign') && Schema::hasTable('coupons')) {
             Schema::table('invoices', function (Blueprint $table) {
                 $table->foreign('coupon_id')->references('id')->on('coupons')->onDelete('set null');
             });
