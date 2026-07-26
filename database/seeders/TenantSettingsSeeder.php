@@ -16,6 +16,10 @@ class TenantSettingsSeeder extends Seeder
     {
         // Helper method to check if foreign key constraint exists
         $constraintExists = function (string $tableName, string $constraintName): bool {
+            if (!Schema::hasTable($tableName)) {
+                return true;
+            }
+
             $count = DB::select("
                 SELECT COUNT(*) as count
                 FROM information_schema.TABLE_CONSTRAINTS
