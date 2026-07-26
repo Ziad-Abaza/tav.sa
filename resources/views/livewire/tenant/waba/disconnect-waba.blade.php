@@ -5,8 +5,8 @@
 
     @php
         $wpSettings = tenant_settings_by_group('whatsapp');
-        $healthStatus = json_decode($wpSettings['wm_health_data']);
-        $defaultPhoneNumberData = collect($phone_numbers)->firstWhere('id', $wpSettings['wm_default_phone_number_id']);
+        $healthStatus = ! empty($wpSettings['wm_health_data'] ?? null) ? json_decode($wpSettings['wm_health_data']) : null;
+        $defaultPhoneNumberData = collect($phone_numbers ?? [])->firstWhere('id', $wpSettings['wm_default_phone_number_id'] ?? '');
     @endphp
 
     <!-- Page Header -->
@@ -80,7 +80,7 @@
                                         <!-- For Admin Users (Show Full Access Token) -->
                                         @if (checkPermission('tenant.connect_account.connect'))
                                             <div class="relative flex flex-grow items-stretch focus-within:z-10">
-                                                <input type="text" value="{{ $wpSettings['wm_access_token'] }}"
+                                                <input type="text" value="{{ $wpSettings['wm_access_token'] ?? '' }}"
                                                     readonly
                                                     class="block w-full rounded-l-lg border-0 py-2 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 text-sm leading-6" />
                                             </div>
@@ -255,7 +255,7 @@
             <!-- Phone Numbers Section -->
             @foreach ($phone_numbers as $phone)
                 @php
-                    $isDefault = $phone['id'] == $wpSettings['wm_default_phone_number_id'];
+                    $isDefault = isset($phone['id']) && isset($wpSettings['wm_default_phone_number_id']) && $phone['id'] == $wpSettings['wm_default_phone_number_id'];
                     $qualityColor = match ($phone['quality_rating'] ?? 'UNKNOWN') {
                         'GREEN' => 'text-success-500',
                         'YELLOW' => 'text-warning-500',
@@ -409,7 +409,7 @@
                     <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800/50 border-t   dark:border-white/5">
                         <div class="flex justify-between items-center">
                             @if ($isDefault)
-                                <a href="https://business.facebook.com/wa/manage/phone-numbers/?waba_id={{ $wpSettings['wm_business_account_id'] }}"
+                                <a href="https://business.facebook.com/wa/manage/phone-numbers/?waba_id={{ $wpSettings['wm_business_account_id'] ?? '' }}"
                                     target="_blank"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white rounded-lg shadow-sm ring-1 ring-gray-900/5 hover:bg-gray-50 dark:bg-slate-700 dark:text-gray-200 dark:ring-white/10 dark:hover:bg-slate-600">
                                     {{ t('manage_phone_numbers') }}
@@ -418,15 +418,15 @@
                                 </a>
                             @else
                                 <button
-                                    wire:click="setDefaultNumber('{{ $phone['id'] }}', '{{ $phone['display_phone_number'] }}')"
+                                    wire:click="setDefaultNumber('{{ $phone['id'] ?? '' }}', '{{ $phone['display_phone_number'] ?? '' }}')"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary-600 rounded-lg shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
                                     <x-heroicon-o-check-circle class="w-4 h-4" />
 
                                     {{ t('mark_as_default') }}
                                 </button>
                             @endif
-                            @if ($phone['quality_rating'] == 'UNKNOWN' && Auth::user()->is_admin)
-                                <button wire:click="registerNumber('{{ $phone['id'] }}')"
+                            @if (($phone['quality_rating'] ?? '') == 'UNKNOWN' && Auth::user()->is_admin)
+                                <button wire:click="registerNumber('{{ $phone['id'] ?? '' }}')"
                                     class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-primary-600 rounded-lg shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
                                     <x-heroicon-o-check-circle class="w-4 h-4" />
 
@@ -439,6 +439,7 @@
             @endforeach
 
             <!-- Overall Health Section -->
+            @if (! empty($healthStatus))
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Health Status Card -->
                 <div class="overflow-hidden rounded-lg bg-white dark:bg-slate-800 border  dark:border-slate-600">
@@ -453,7 +454,7 @@
                                     {{ t('overall_health') }}
                                 </h3>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ t('last_checked') }} {{ $wpSettings['wm_health_check_time'] }}
+                                    {{ t('last_checked') }} {{ $wpSettings['wm_health_check_time'] ?? '' }}
                                 </p>
                             </div>
                         </div>
@@ -469,7 +470,7 @@
 
                                     @if (checkPermission('tenant.connect_account.connect'))
                                         <p class="mt-1 text-base font-medium text-gray-900 dark:text-white font-mono">
-                                            {{ $healthStatus->id }}
+                                            {{ $healthStatus->id ?? '' }}
                                         </p>
                                     @else
                                         <div class="mt-1 flex items-center space-x-1 rounded-lg">
@@ -481,16 +482,19 @@
                                         </div>
                                     @endif
                                 </div>
+                                @if (isset($healthStatus->health_status->can_send_message))
                                 <span
                                     class="inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset {{ $healthStatus->health_status->can_send_message === 'AVAILABLE' ? 'bg-success-50 text-success-700 ring-success-600/20 dark:bg-success-500/10 dark:text-success-400 dark:ring-success-500/20' : 'bg-danger-50 text-danger-700 ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-400 dark:ring-danger-500/20' }}">
                                     {{ $healthStatus->health_status->can_send_message }}
                                 </span>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- WABA Entities -->
+                @if (isset($healthStatus->health_status->entities) && is_iterable($healthStatus->health_status->entities))
                 @foreach ($healthStatus->health_status->entities as $entity)
                     <div class="overflow-hidden rounded-lg bg-white dark:bg-slate-800 border  dark:border-slate-600">
                         <div class="px-6 py-4 border-b   dark:border-white/5 dark:bg-slate-800/50">
@@ -501,12 +505,12 @@
 
                                 <div class="flex-1">
                                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                        {{ $entity->entity_type }}
+                                        {{ $entity->entity_type ?? '' }}
                                     </h3>
 
                                     @if (checkPermission('tenant.connect_account.connect'))
                                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            ID: {{ $entity->id }}
+                                            ID: {{ $entity->id ?? '' }}
                                         </p>
                                     @else
                                         <div class="flex items-center space-x-1">
@@ -530,7 +534,7 @@
                                         </h4>
                                     </div>
                                     <span
-                                        class="inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset {{ $entity->can_send_message === 'AVAILABLE' ? 'bg-success-50 text-success-700 ring-success-600/20 dark:bg-success-500/10 dark:text-success-400 dark:ring-success-500/20' : 'bg-danger-50 text-danger-700 ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-400 dark:ring-danger-500/20' }}">
+                                        class="inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset {{ ($entity->can_send_message ?? '') === 'AVAILABLE' ? 'bg-success-50 text-success-700 ring-success-600/20 dark:bg-success-500/10 dark:text-success-400 dark:ring-success-500/20' : 'bg-danger-50 text-danger-700 ring-danger-600/20 dark:bg-danger-500/10 dark:text-danger-400 dark:ring-danger-500/20' }}">
                                         {{ $entity->can_send_message ?? '' }}
                                     </span>
                                 </div>
@@ -538,7 +542,9 @@
                         </div>
                     </div>
                 @endforeach
+                @endif
             </div>
+            @endif
 
             <!-- Refresh Button -->
             <div class="flex justify-end">
@@ -575,7 +581,7 @@
             copied: false
         },
         whatsappUrl: {
-            link: 'https://api.whatsapp.com/send?phone=' + '{{ $wpSettings['wm_default_phone_number'] }}',
+            link: 'https://api.whatsapp.com/send?phone=' + '{{ $wpSettings['wm_default_phone_number'] ?? '' }}',
             copied: false
         },
         copyToClipboard(text, type) {

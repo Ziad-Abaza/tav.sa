@@ -39,47 +39,53 @@ class DisconnectWaba extends Component
         $this->phone_numbers = $phone_numbers['data'] ?? [];
         $tenantWpSettings = tenant_settings_by_group('whatsapp');
 
-        if ($phone_numbers['status']) {
-            $webhook_configuration_url = array_column(array_column($phone_numbers['data'], 'webhook_configuration'), 'application');
+        if (! empty($phone_numbers['status'])) {
+            $webhook_configuration_url = array_column(array_column($phone_numbers['data'] ?? [], 'webhook_configuration'), 'application');
             if (in_array(route('whatsapp.webhook'), $webhook_configuration_url)) {
                 save_tenant_setting('whatsapp', 'is_webhook_connected', 1);
             } else {
                 save_tenant_setting('whatsapp', 'is_webhook_connected', 0);
             }
 
-            if (empty($tenantWpSettings['wm_default_phone_number_id']) || empty($tenantWpSettings['wm_default_phone_number'])) {
-                $default_number = preg_replace('/\D/', '', $this->phone_numbers[array_key_first($this->phone_numbers)]['display_phone_number']);
-                $default_number_id = preg_replace('/\D/', '', $this->phone_numbers[array_key_first($this->phone_numbers)]['id']);
-                save_tenant_setting('whatsapp', 'wm_default_phone_number', $default_number);
-                save_tenant_setting('whatsapp', 'wm_default_phone_number_id', $default_number_id);
-                $this->registerPhoneNumber($default_number_id);
+            if (! empty($this->phone_numbers) && (empty($tenantWpSettings['wm_default_phone_number_id']) || empty($tenantWpSettings['wm_default_phone_number']))) {
+                $first_key = array_key_first($this->phone_numbers);
+                if ($first_key !== null && isset($this->phone_numbers[$first_key])) {
+                    $default_number = preg_replace('/\D/', '', $this->phone_numbers[$first_key]['display_phone_number'] ?? '');
+                    $default_number_id = preg_replace('/\D/', '', $this->phone_numbers[$first_key]['id'] ?? '');
+                    save_tenant_setting('whatsapp', 'wm_default_phone_number', $default_number);
+                    save_tenant_setting('whatsapp', 'wm_default_phone_number_id', $default_number_id);
+                    if (! empty($default_number_id)) {
+                        $this->registerPhoneNumber($default_number_id);
+                    }
+                }
             }
 
             if (empty($tenantWpSettings['wm_health_data']) || empty($tenantWpSettings['wm_health_check_time'])) {
                 $helthStatus = $this->getHealthStatus();
                 save_tenant_setting('whatsapp', 'wm_health_check_time', date('l jS F Y g:i:s a'));
-                save_tenant_setting('whatsapp', 'wm_health_data', json_encode($helthStatus['data']));
+                save_tenant_setting('whatsapp', 'wm_health_data', json_encode($helthStatus['data'] ?? []));
             }
 
             $this->limit = $this->getMessagingLimit();
 
             $data = $this->getProfile();
-            $profile_data = collect($data['data'])->firstWhere('messaging_product', 'whatsapp');
+            $profile_data = collect($data['data'] ?? [])->firstWhere('messaging_product', 'whatsapp');
             save_tenant_setting('whatsapp', 'wm_profile_picture_url', $profile_data['profile_picture_url'] ?? '');
 
             if (! empty($tenantWpSettings['wm_default_phone_number_id']) && ! empty($tenantWpSettings['wm_default_phone_number']) && ! file_exists(public_path('storage/tenant/'.tenant_id().'/images/qrcode.png'))) {
-                @unlink(public_path('storage/tenant/'.tenant_id().'images/qrcode.png'));
+                @unlink(public_path('storage/tenant/'.tenant_id().'/images/qrcode.png'));
                 $this->generateUrlQR('https://wa.me/'.$tenantWpSettings['wm_default_phone_number'], true);
             }
         } else {
             save_tenant_setting('whatsapp', 'is_whatsmark_connected', 0);
         }
 
-        if ($tenantWpSettings['is_whatsmark_connected'] == 0 || $tenantWpSettings['is_webhook_connected'] == 0) {
+        if (($tenantWpSettings['is_whatsmark_connected'] ?? 0) == 0 || ($tenantWpSettings['is_webhook_connected'] ?? 0) == 0) {
             return redirect()->to(tenant_route('tenant.connect'));
         }
 
-        $this->message_details = $this->getMessageLimit()['data'];
+        $messageLimit = $this->getMessageLimit();
+        $this->message_details = $messageLimit['data'] ?? [];
         $this->message_details['limit_value'] = $this->limit['data']['limit_value'] ?? 1000;
 
         $tenantGeneralSettings = tenant_settings_by_group('general');
