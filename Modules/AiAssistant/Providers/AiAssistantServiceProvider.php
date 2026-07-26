@@ -168,11 +168,13 @@ class AiAssistantServiceProvider extends ServiceProvider
             add_action('before_process_bot_sending', function ($data) {
                 $chatInteraction = Chat::fromTenant($data['tenant_subdomain'])->where('receiver_id', $data['message']['from'])->first();
                 if ($this->shouldProcessAIChat($chatInteraction, $data['trigger_msg'])) {
-                    $this->processAIMessage($chatInteraction, $data['trigger_msg']);
+                    \Modules\AiAssistant\Jobs\ProcessAiChatMessageJob::dispatch($chatInteraction->id, $data['trigger_msg']);
+                    response()->json(['status' => 'success'])->send();
                     exit;
                 }
 
                 if ($chatInteraction->is_ai_chat || $chatInteraction->is_bots_stoped) {
+                    response()->json(['status' => 'success'])->send();
                     exit;
                 }
             });
@@ -180,7 +182,11 @@ class AiAssistantServiceProvider extends ServiceProvider
             add_action('before_process_messagebot_sending_message', function ($data) {
                 if (! empty($data['message']['assistant_id'])) {
                     $chatInteraction = Chat::fromTenant($data['tenant_subdomain'])->where('receiver_id', $data['contact_number'])->first();
-                    $this->initializeAIChat($chatInteraction, $data['message']['assistant_id'], $data['trigger_msg']);
+                    \Modules\AiAssistant\Jobs\ProcessAiChatMessageJob::dispatch(
+                        $chatInteraction->id,
+                        $data['trigger_msg'],
+                        (int) $data['message']['assistant_id']
+                    );
 
                     return;
                 }
@@ -189,7 +195,11 @@ class AiAssistantServiceProvider extends ServiceProvider
             add_action('before_send_flow_message', function ($data) {
                 if ($data['node_type'] == 'aiAssistant') {
                     $chatInteraction = Chat::fromTenant($data['tenant_subdomain'])->where('receiver_id', $data['contact_number'])->first();
-                    $this->initializeAIChat($chatInteraction, $data['node_data']['output'][0]['personal_assistant'], $data['context']['trigger_message']);
+                    \Modules\AiAssistant\Jobs\ProcessAiChatMessageJob::dispatch(
+                        $chatInteraction->id,
+                        $data['context']['trigger_message'],
+                        (int) $data['node_data']['output'][0]['personal_assistant']
+                    );
 
                     return true;
                 }

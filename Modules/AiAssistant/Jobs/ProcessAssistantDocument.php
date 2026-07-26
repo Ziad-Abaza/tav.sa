@@ -12,11 +12,21 @@ use Illuminate\Support\Facades\Storage;
 use Modules\AiAssistant\Models\Tenant\AssistantDocument;
 use Modules\AiAssistant\Services\OpenAIAssistantService;
 
-class ProcessAssistantDocument implements ShouldQueue
+use Spatie\Multitenancy\Jobs\TenantAware;
+use Spatie\Multitenancy\Models\Tenant;
+
+class ProcessAssistantDocument implements ShouldQueue, TenantAware
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $document;
+
+    /**
+     * The tenant this job belongs to.
+     *
+     * @var Tenant
+     */
+    public $tenant;
 
     /**
      * Create a new job instance.
@@ -24,6 +34,7 @@ class ProcessAssistantDocument implements ShouldQueue
     public function __construct(AssistantDocument $document)
     {
         $this->document = $document;
+        $this->tenant = Tenant::current();
     }
 
     /**
