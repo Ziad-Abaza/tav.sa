@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Api\Table\Languages;
+namespace App\Http\Controllers\Admin\Api\Table\languages;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
