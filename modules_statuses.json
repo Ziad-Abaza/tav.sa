@@ -6,7 +6,7 @@
     "ApiWebhookManager": true,
     "Ecommerce": true,
     "FBLead": true,
-    "ThemeBuilder": true,
+    "ThemeBuilder": false,
     "AiAssistant": true,
     "EmbeddedSignup": true,
     "TapGateway": true

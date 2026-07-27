@@ -220,9 +220,10 @@ class EcommerceServiceProvider extends ServiceProvider
         $this->publishes([
             $sourcePath => $viewPath,
         ], 'views');
+        $paths = array_values(array_filter([$viewPath, $sourcePath], 'is_dir'));
         // Register views with both lowercase and original case to ensure compatibility
-        $this->loadViewsFrom(array_merge([$sourcePath], [$viewPath]), $this->moduleName);
-        $this->loadViewsFrom(array_merge([$sourcePath], [$viewPath]), strtolower($this->moduleName));
+        $this->loadViewsFrom($paths, $this->moduleName);
+        $this->loadViewsFrom($paths, strtolower($this->moduleName));
     }
 
     /**

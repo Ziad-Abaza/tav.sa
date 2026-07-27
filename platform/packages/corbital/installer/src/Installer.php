@@ -56,6 +56,11 @@ class Installer
             'whats-mark.wm_verification_token',
             'whats-mark.wm_verification_id',
         ]);
+
+        if (empty($settings['whats-mark.wm_verification_token'])) {
+            throw new \RuntimeException('Installation verification token is missing in database. Please check license verification.');
+        }
+
         $content = sprintf($settings['whats-mark.wm_verification_token']);
 
         // Ensure storage directory exists

@@ -25,9 +25,9 @@ class UpdateChecker
     {
         $update = $this->checkUpdate($data['token']);
 
-        if ($update['success'] == true) {
+        if (($update['success'] ?? false) == true) {
             $download = $this->downloadUpdate($update['data']['update_id'], $update['data']['has_sql_update'], $update['data']['latest_version'], $data['token'], $data['purchase_code'], $data['username']);
-            if ($download['success'] == true) {
+            if (($download['success'] ?? false) == true) {
                 set_settings_batch('whats-mark', [
                     'wm_version' => $update['data']['latest_version'],
                     'wm_verification_id' => base64_encode($data['verification_id']),
@@ -35,7 +35,11 @@ class UpdateChecker
                     'wm_last_verification' => now()->timestamp,
                     'wm_support_until' => $data['support_until'],
                 ]);
+            } else {
+                throw new \RuntimeException('Update download failed: '.($download['message'] ?? 'Unknown error'));
             }
+        } else {
+            throw new \RuntimeException('Update check failed: '.($update['message'] ?? 'License or update check failed'));
         }
     }
 
@@ -205,19 +209,7 @@ class UpdateChecker
      */
     private function validateZipContents(ZipArchive $zip): void
     {
-        $requiredFiles = [
-            'vendor/composer/autoload_classmap.php',
-            'vendor/composer/autoload_psr4.php',
-            'vendor/composer/autoload_static.php',
-        ];
-
-        $missingFiles = [];
-
-        foreach ($requiredFiles as $file) {
-            if ($this->fileExistsInZip($zip, $file)) {
-                File::delete(base_path($file));
-            }
-        }
+        // Extraction will overwrite files naturally; avoid deleting critical autoloader files before extraction completes.
     }
 
     /**

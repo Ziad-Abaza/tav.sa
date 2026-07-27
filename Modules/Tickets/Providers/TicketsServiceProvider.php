@@ -155,9 +155,9 @@ class TicketsServiceProvider extends ServiceProvider
             $sourcePath => $viewPath,
         ], 'views');
 
-        $this->loadViewsFrom(array_merge([$sourcePath], [
-            $viewPath,
-        ]), $this->moduleName);
+        $paths = array_values(array_filter([$viewPath, $sourcePath], 'is_dir'));
+
+        $this->loadViewsFrom($paths, $this->moduleName);
     }
 
     /**
