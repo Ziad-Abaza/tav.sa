@@ -1,20 +1,9 @@
 <?php return array (
-  'barryvdh/laravel-debugbar' => 
+  'anourvalar/eloquent-serialize' => 
   array (
     'aliases' => 
     array (
-      'Debugbar' => 'Barryvdh\\Debugbar\\Facades\\Debugbar',
-    ),
-    'providers' => 
-    array (
-      0 => 'Barryvdh\\Debugbar\\ServiceProvider',
-    ),
-  ),
-  'barryvdh/laravel-ide-helper' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
+      'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
     ),
   ),
   'blade-ui-kit/blade-heroicons' => 
@@ -92,20 +81,6 @@
       0 => 'Knuckles\\Scribe\\ScribeServiceProvider',
     ),
   ),
-  'laravel/boost' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Boost\\BoostServiceProvider',
-    ),
-  ),
-  'laravel/breeze' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Breeze\\BreezeServiceProvider',
-    ),
-  ),
   'laravel/horizon' => 
   array (
     'aliases' => 
@@ -115,45 +90,6 @@
     'providers' => 
     array (
       0 => 'Laravel\\Horizon\\HorizonServiceProvider',
-    ),
-  ),
-  'laravel/mcp' => 
-  array (
-    'aliases' => 
-    array (
-      'Mcp' => 'Laravel\\Mcp\\Server\\Facades\\Mcp',
-    ),
-    'providers' => 
-    array (
-      0 => 'Laravel\\Mcp\\Server\\McpServiceProvider',
-    ),
-  ),
-  'laravel/pail' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Pail\\PailServiceProvider',
-    ),
-  ),
-  'laravel/roster' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Roster\\RosterServiceProvider',
-    ),
-  ),
-  'laravel/sail' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Sail\\SailServiceProvider',
-    ),
-  ),
-  'laravel/sentinel' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Laravel\\Sentinel\\SentinelServiceProvider',
     ),
   ),
   'laravel/tinker' => 
@@ -218,13 +154,6 @@
     'providers' => 
     array (
       0 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
-    ),
-  ),
-  'pestphp/pest-plugin-laravel' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Pest\\Laravel\\PestServiceProvider',
     ),
   ),
   'spatie/laravel-multitenancy' => 
