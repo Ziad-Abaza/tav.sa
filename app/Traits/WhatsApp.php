@@ -1250,8 +1250,27 @@ trait WhatsApp
                     'raw_data' => $rawData,
                     'tenant_id' => $tenant_id,
                 ], $th, $tenant_id);
+            } catch (\Throwable $th) {
+                $status = false;
+                $message = $th->getMessage();
+                $responseCode = 500;
+                $responseData = json_encode($message);
+                $rawData = json_encode([]);
+
+                whatsapp_log('Unexpected error sending template', 'error', [
+                    'template_name' => $template_data['template_name'] ?? null,
+                    'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+                    'error_class' => get_class($th),
+                ], $th, $tenant_id);
             }
         }
+
+        whatsapp_log('WhatsApp outbound template API result', ($status ?? false) ? 'info' : 'error', [
+            'template_name' => $template_data['template_name'] ?? null,
+            'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+            'response_code' => $responseCode ?? 500,
+            'response_body' => $responseData ?? null,
+        ], null, $tenant_id);
 
         $log_data = [
             'response_code' => $responseCode,
@@ -1262,8 +1281,8 @@ trait WhatsApp
             'category_params' => json_encode(['templateId' => $template_data['template_id'], 'message' => $message ?? '']),
             'response_data' => $responseData,
             'raw_data' => $rawData,
-            'phone_number_id' => $this->getPhoneID(),
-            'access_token' => $this->getToken(),
+            'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+            'access_token' => null,
             'business_account_id' => $this->getAccountID(),
             'tenant_id' => $tenant_id,
         ];
@@ -1833,7 +1852,26 @@ trait WhatsApp
                 'response_code' => $responseCode,
                 'tenant_id' => $tenant_id,
             ], $th, $tenant_id);
+        } catch (\Throwable $th) {
+            $status = false;
+            $message = $th->getMessage();
+            $responseCode = 500;
+            $responseData = $message;
+            $rawData = json_encode([]);
+
+            whatsapp_log('Unexpected error sending message', 'error', [
+                'message_type' => $folder,
+                'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+                'error_class' => get_class($th),
+            ], $th, $tenant_id);
         }
+
+        whatsapp_log('WhatsApp outbound API result', ($status ?? false) ? 'info' : 'error', [
+            'message_type' => $folder,
+            'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+            'response_code' => $responseCode ?? 500,
+            'response_body' => $responseData ?? null,
+        ], null, $tenant_id);
 
         $log_data = [
             'response_code' => $responseCode ?? 500,
@@ -1844,8 +1882,8 @@ trait WhatsApp
             'category_params' => json_encode(['message' => $message ?? '']),
             'response_data' => ! empty($responseData) ? json_encode($responseData) : '',
             'raw_data' => $rawData,
-            'phone_number_id' => $this->getPhoneID(),
-            'access_token' => $this->getToken(),
+            'phone_number_id' => $fromNumber ?: $this->getPhoneID(),
+            'access_token' => null,
             'business_account_id' => $this->getAccountID(),
             'tenant_id' => $tenant_id,
         ];

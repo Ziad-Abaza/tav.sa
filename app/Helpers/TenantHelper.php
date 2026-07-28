@@ -449,7 +449,8 @@ if (! function_exists('whatsapp_log')) {
     {
         // Skip logging if WhatsApp logging is disabled in settings
 
-        $settings = get_tenant_setting_by_tenant_id('whatsapp', 'logging', '', tenant_id());
+        $tenantId = $tenantId ?? tenant_id();
+        $settings = get_tenant_setting_by_tenant_id('whatsapp', 'logging', '', $tenantId);
 
         $logging = is_string($settings)
             ? json_decode($settings, true)
@@ -459,9 +460,6 @@ if (! function_exists('whatsapp_log')) {
         if (! ($logging['enabled'] ?? false)) {
             return;
         }
-
-        // Get tenant info for isolation
-        $tenantId = $tenantId ?? tenant_id();
 
         // Build the log context with consistent metadata
         $logContext = array_merge([

@@ -17,9 +17,11 @@ use App\Models\Tenant\TemplateBot;
 use App\Models\Tenant\WhatsappTemplate;
 use App\Services\FeatureService;
 use App\Services\pusher\PusherService;
+use App\Support\WhatsAppTextNormalizer;
 use App\Traits\WhatsApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -77,30 +79,58 @@ class WhatsAppWebhookController extends Controller
                 exit;
             }
         }
-        $this->featureLimitChecker = $featureLimitChecker;
+        $feedData = $request->getContent();
+        $payload = json_decode($feedData, true);
 
-        // Process webhook payload for messages and statuses
-        $this->processWebhookPayload();
+        if (! is_array($payload)) {
+            Log::warning('Rejected malformed WhatsApp webhook JSON', [
+                'json_error' => json_last_error_msg(),
+            ]);
+
+            return response()->json(['status' => 'ignored'], 200);
+        }
+
+        if (($payload['message'] ?? null) === 'ctl_whatsmark_saas_ping' && isset($payload['identifier'])) {
+            return response()->json(['status' => true, 'message' => 'Webhook verified']);
+        }
+
+        // Acknowledge Meta immediately and process after the response is sent.
+        app()->terminating(function () use ($feedData, $featureLimitChecker): void {
+            try {
+                $this->featureLimitChecker = $featureLimitChecker;
+                $this->processWebhookPayload($feedData);
+            } catch (\Throwable $exception) {
+                Log::error('Unhandled WhatsApp webhook processing failure', [
+                    'exception' => get_class($exception),
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        });
+
+        return response()->json(['status' => 'accepted'], 200);
     }
 
     /**
      * Process incoming webhook payload
      */
-    protected function processWebhookPayload()
+    protected function processWebhookPayload(string $feedData): void
     {
-        $feedData = file_get_contents('php://input');
-
         if (! empty($feedData)) {
             $payload = json_decode($feedData, true);
-
-            // Special ping message handling
-            if (isset($payload['message']) && $payload['message'] === 'ctl_whatsmark_saas_ping' && isset($payload['identifier'])) {
-                echo json_encode(['status' => true, 'message' => 'Webhook verified']);
+            $entries = $payload['entry'] ?? null;
+            if (! is_array($payload) || ! is_array($entries) || empty($entries)) {
+                Log::warning('Ignored structurally invalid WhatsApp webhook payload');
 
                 return;
             }
 
-            $entry = reset($payload['entry']);
+            $entry = reset($entries);
+            if (! is_array($entry) || empty($entry['changes']) || ! is_array($entry['changes'])) {
+                Log::warning('Ignored WhatsApp webhook without changes');
+
+                return;
+            }
+
             $business_id = $entry['id'] ?? null;
 
             $this->isTemplateWebhook($payload);
@@ -109,6 +139,11 @@ class WhatsAppWebhookController extends Controller
             $this->tenant_id = getTenantIdFromWhatsappDetails($business_id, $phoneNumberId);
 
             if (empty($this->tenant_id)) {
+                Log::warning('WhatsApp webhook tenant resolution failed', [
+                    'has_business_id' => ! empty($business_id),
+                    'has_phone_number_id' => ! empty($phoneNumberId),
+                ]);
+
                 return;
             }
 
@@ -123,7 +158,8 @@ class WhatsAppWebhookController extends Controller
                 'Webhook Payload Received',
                 'info',
                 [
-                    'payload' => $feedData,
+                    'event_type' => isset($entry['changes'][0]['value']['messages']) ? 'message' : (isset($entry['changes'][0]['value']['statuses']) ? 'status' : 'other'),
+                    'phone_number_id' => $phoneNumberId,
                     'tenant_id' => $this->tenant_id,
                 ],
                 null,
@@ -184,9 +220,14 @@ class WhatsAppWebhookController extends Controller
         );
 
         // Extract entry and changes
-        $entry = array_shift($payload['entry']);
-        $changes = array_shift($entry['changes']);
-        $value = $changes['value'];
+        $entries = $payload['entry'] ?? [];
+        $entry = is_array($entries) ? array_shift($entries) : null;
+        $changesList = is_array($entry) ? ($entry['changes'] ?? []) : [];
+        $changes = is_array($changesList) ? array_shift($changesList) : null;
+        $value = is_array($changes) ? ($changes['value'] ?? null) : null;
+        if (! is_array($value)) {
+            return;
+        }
 
         // Process messages or statuses
         if (isset($value['messages'])) {
@@ -211,8 +252,24 @@ class WhatsAppWebhookController extends Controller
             }
 
             if (! empty($trigger_msg)) {
-                $contact = reset($message_data['contacts']);
-                $metadata = $message_data['metadata'];
+                $contacts = $message_data['contacts'] ?? [];
+                $contact = is_array($contacts) ? reset($contacts) : null;
+                $metadata = $message_data['metadata'] ?? [];
+                if (! is_array($contact) || empty($message['from']) || empty($metadata['phone_number_id'])) {
+                    whatsapp_log('Skipping bot processing due to incomplete message context', 'warning', [
+                        'has_contact' => is_array($contact),
+                        'has_sender' => ! empty($message['from']),
+                        'has_phone_number_id' => ! empty($metadata['phone_number_id']),
+                    ], null, $this->tenant_id);
+
+                    return;
+                }
+
+                whatsapp_log('Inbound WhatsApp text received', 'info', [
+                    'sender_id' => $message['from'],
+                    'phone_number_id' => $metadata['phone_number_id'],
+                    'message_text' => $trigger_msg,
+                ], null, $this->tenant_id);
 
                 do_action('before_process_bot_sending', [
                     'tenant_id' => $this->tenant_id,
@@ -261,6 +318,12 @@ class WhatsAppWebhookController extends Controller
                         $template_bots = TemplateBot::getTemplateBotsByRelType($contact_data->type ?? '', $query_trigger_msg, $this->tenant_id, $reply_type);
                         $message_bots = MessageBot::getMessageBotsbyRelType($contact_data->type ?? '', $query_trigger_msg, $this->tenant_id, $reply_type);
 
+                        whatsapp_log('WhatsApp bot candidates resolved', 'info', [
+                            'normalized_text' => WhatsAppTextNormalizer::normalize($trigger_msg),
+                            'template_candidates' => count($template_bots),
+                            'message_candidates' => count($message_bots),
+                        ], null, $this->tenant_id);
+
                         if (empty($template_bots) && empty($message_bots)) {
                             $template_bots = TemplateBot::getTemplateBotsByRelType($contact_data->type ?? '', $query_trigger_msg, $this->tenant_id, 4);
                             $message_bots = MessageBot::getMessageBotsbyRelType($contact_data->type ?? '', $query_trigger_msg, $this->tenant_id, 4);
@@ -284,7 +347,10 @@ class WhatsAppWebhookController extends Controller
                             }
 
                             // Send template on exact match, contains, or first time
-                            if (($template['reply_type'] == 1 && in_array(strtolower($trigger_msg), array_map('trim', array_map('strtolower', explode(',', $template['trigger']))))) || ($template['reply_type'] == 2 && ! empty(array_filter(explode(',', $template['trigger']), fn ($word) => mb_stripos($trigger_msg, trim($word)) !== false))) || ($template['reply_type'] == 3 && $this->is_first_time) || $template['reply_type'] == 4) {
+                            if ($this->botMatchesTrigger($template, $trigger_msg)) {
+                                whatsapp_log('WhatsApp template bot matched', 'info', [
+                                    'bot_id' => $template['template_bot_id'] ?? $template['id'] ?? null,
+                                ], null, $this->tenant_id);
                                 // Ensure category and button params are passed for authentication templates
                                 if (! isset($template['category'])) {
                                     $template['category'] = $template['category'] ?? null;
@@ -303,7 +369,10 @@ class WhatsAppWebhookController extends Controller
                             if (! empty($contact_data->userid)) {
                                 $message['userid'] = $contact_data->userid;
                             }
-                            if (($message['reply_type'] == 1 && in_array(strtolower($trigger_msg), array_map('trim', array_map('strtolower', explode(',', $message['trigger']))))) || ($message['reply_type'] == 2 && ! empty(array_filter(explode(',', $message['trigger']), fn ($word) => mb_stripos($trigger_msg, trim($word)) !== false))) || ($message['reply_type'] == 3 && $this->is_first_time) || $message['reply_type'] == 4) {
+                            if ($this->botMatchesTrigger($message, $trigger_msg)) {
+                                whatsapp_log('WhatsApp message bot matched', 'info', [
+                                    'bot_id' => $message['id'] ?? null,
+                                ], null, $this->tenant_id);
 
                                 do_action('before_process_messagebot_sending_message', ['message' => $message, 'trigger_msg' => $trigger_msg, 'contact_number' => $contact_number, 'tenant_id' => $this->tenant_id, 'tenant_subdomain' => $this->tenant_subdoamin]);
 
@@ -331,6 +400,19 @@ class WhatsAppWebhookController extends Controller
             }
         }
         $this->processBotFlow($message_data);
+    }
+
+    private function botMatchesTrigger(array $bot, string $message): bool
+    {
+        $replyType = (int) ($bot['reply_type'] ?? 0);
+        if ($replyType === 3) {
+            return $this->is_first_time;
+        }
+        if ($replyType === 4) {
+            return true;
+        }
+
+        return WhatsAppTextNormalizer::matches($replyType, $bot['trigger'] ?? null, $message);
     }
 
     /**

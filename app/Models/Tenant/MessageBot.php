@@ -4,6 +4,7 @@ namespace App\Models\Tenant;
 
 use App\Models\BaseModel;
 use App\Models\Tenant;
+use App\Support\WhatsAppTextNormalizer;
 use App\Traits\BelongsToTenant;
 use App\Traits\TracksFeatureUsage;
 use Carbon\Carbon;
@@ -121,27 +122,16 @@ class MessageBot extends BaseModel
             $query->where('reply_type', $replyType);
         }
 
+        $bots = $query->get();
+
         if (! empty($message) && $replyType != 4) {
-            $cleanMessage = str_replace(["'", '"'], '', $message);
-            $messageWords = explode(' ', $cleanMessage);
-
-            $query->where(function ($q) use ($cleanMessage, $messageWords) {
-                // 1. Exact full sentence match
-                $q->orWhere('trigger', $cleanMessage);
-
-                // 2. Partial sentence match
-                $q->orWhere('trigger', 'LIKE', '%'.$cleanMessage.'%');
-
-                // 3. Word-based match
-                foreach ($messageWords as $word) {
-                    $cleanWord = trim($word);
-                    if (! empty($cleanWord)) {
-                        $q->orWhere('trigger', 'LIKE', '%'.$cleanWord.'%');
-                    }
-                }
-            });
+            $bots = $bots->filter(fn (MessageBot $bot): bool => WhatsAppTextNormalizer::matches(
+                (int) $bot->reply_type,
+                $bot->trigger,
+                $message
+            ));
         }
 
-        return $query->get()->toArray();
+        return $bots->values()->toArray();
     }
 }
