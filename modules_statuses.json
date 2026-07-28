@@ -1,0 +1,10 @@
+{
+    "LogViewer": true,
+    "CacheManager": true,
+    "SystemInfo": true,
+    "Tickets": true,
+    "ApiWebhookManager": true,
+    "Ecommerce": true,
+    "FBLead": false,
+    "ThemeBuilder": false
+}

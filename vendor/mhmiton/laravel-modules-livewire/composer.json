@@ -1,0 +1,65 @@
+{
+    "name": "mhmiton/laravel-modules-livewire",
+    "description": "Using Laravel Livewire in Laravel Modules package with automatically registered livewire components for every modules.",
+    "keywords": [
+        "laravel",
+        "modules",
+        "module",
+        "laravel-modules",
+        "laravel-module",
+        "custom-modules",
+        "custom-module",
+        "livewire",
+        "laravel-livewire",
+        "nwidart",
+        "mhmiton"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mehediul Hassan Miton",
+            "email": "mhmiton.dev@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "type": "library",
+    "require": {
+        "php": ">=8.1",
+        "laravel/framework": "^10.0|^11.0|^12.0",
+        "livewire/livewire": "^3.0",
+        "nwidart/laravel-modules": ">=11.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.3.1",
+        "phpunit/phpunit": "^10.4|^11.5",
+        "orchestra/testbench": "^8.21.0|^9.0|^10.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mhmiton\\LaravelModulesLivewire\\LaravelModulesLivewireServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Mhmiton\\LaravelModulesLivewire\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mhmiton\\LaravelModulesLivewire\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "composer dump-autoload && phpunit",
+        "test-quick": "phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "wikimedia/composer-merge-plugin": true
+        }
+    }
+}
